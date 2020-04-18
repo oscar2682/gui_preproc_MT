@@ -8,7 +8,7 @@ It shows a time series and allows you to select points, either one by one or by 
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QDialog,QApplication
 from PyQt5.QtWidgets import QPushButton,QVBoxLayout
-from PyQt5.QtWidgets import QGroupBox
+from PyQt5.QtWidgets import QGroupBox,QFileDialog
 
 
 
@@ -31,8 +31,14 @@ class MainWindow(QDialog):
         self.group_1.setLayout(self.vbox_1)
 
     def get_data(self):
-        print("YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Select files to plot"\
+                , ""\
+                ,"All Files (*);;Python Files (*.py)"\
+                , options=options)
+        if fileName:
+            print(fileName)
 
 
 if __name__ == "__main__":
