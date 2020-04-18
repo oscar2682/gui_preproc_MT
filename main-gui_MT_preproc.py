@@ -11,6 +11,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QDialog,QApplication
 from PyQt5.QtWidgets import QPushButton,QVBoxLayout
 from PyQt5.QtWidgets import QGroupBox,QFileDialog
+from funcs_gui_MT_preproc import plot_file
 
 class MainWindow(QDialog):
     # MAIN FUNCTION
@@ -34,9 +35,7 @@ class MainWindow(QDialog):
                 ," Universal Sounding Format Files (*.usf)"\
                 , options=options)
         if fileName:
-            print(fileName)
-            open(fileName)
-
+            plot_file(fileName)
 
 if __name__ == "__main__":
     import sys
