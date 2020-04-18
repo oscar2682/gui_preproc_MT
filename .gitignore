@@ -1,2 +1,4 @@
 *.usf
 *.png
+__pycache__/
+read_usf_file/
