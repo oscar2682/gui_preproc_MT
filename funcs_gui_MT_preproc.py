@@ -2,6 +2,7 @@ from sys import exit
 import os
 import matplotlib.pyplot as plt
 import warnings
+from numpy import absolute
 warnings.filterwarnings("ignore")
 plt.style.use('bmh')
 
@@ -20,11 +21,13 @@ def plot_file(fn):
             t = []; volt = []; err = []
             for j in range(0,npts):
                 t.append(float(lines[idx+14+j].split()[1].replace(",", "")))
-                volt.append(float(lines[idx+14+j].split()[3].replace(",", "")))
+                volt.append(absolute(float(\
+                        lines[idx+14+j].split()[3].replace(",", ""))))
                 err.append(float(lines[idx+14+j].split()[4].replace(",", "")))
             axs[cont].loglog(t,volt,'.-', label="Sounding %02d" % (cont+1))
+            axs[cont].errorbar(t, volt, yerr=err, ls='none',label="Error bar")
             axs[cont].get_shared_x_axes().join(axs[cont], axs[cont-1])
-            axs[cont].legend(loc=1)
+            axs[cont].legend(loc=3)
             idx = idx + npts + 22
             cont += 1
         axs[cont-1].set_xlabel("Time, s")
@@ -35,14 +38,24 @@ def plot_file(fn):
         t = []; volt = []; err = []
         for j in range(0,npts):
             t.append(float(lines[idx+14+j].split()[1].replace(",", "")))
-            volt.append(float(lines[idx+14+j].split()[3].replace(",", "")))
+            volt.append(absolute(float(\
+                    lines[idx+14+j].split()[3].replace(",", ""))))
             err.append(float(lines[idx+14+j].split()[4].replace(",", "")))
         plt.figure(figsize=(8,4))
         plt.title("Noise curve for: %s" % ofn,fontsize=18)
         plt.loglog(t,volt,'.-', label="Noise sounding")
+        plt.errorbar(t, volt, yerr=err, ls='none',label="Error bar")
         plt.xlabel("Time, s")
         plt.ylabel("Volt/Amp")
-        plt.legend(loc=1)
+        plt.legend(loc=3)
     plt.tight_layout()
     plt.savefig(ofn + ".png",dpi=300)
     plt.show()
+
+def get_info_labels(fn):
+    f = open(fn)
+    lines = f.readlines()
+    ns = int(lines[1][-3:])
+    return ns
+
+
