@@ -58,6 +58,7 @@ class MainWindow(QDialog):
                 , options=options)
         if fileName:
             plot_file(fileName)
+
     def update_labels(self):
         ns = get_info_labels(fileName)
         ofn = fileName.split("/")[-1].split(".")[0]

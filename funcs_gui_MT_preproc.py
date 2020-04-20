@@ -57,5 +57,3 @@ def get_info_labels(fn):
     lines = f.readlines()
     ns = int(lines[1][-3:])
     return ns
-
-
