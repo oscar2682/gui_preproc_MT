@@ -66,7 +66,6 @@ def get_info_labels(fn):
     return ns
 
 def clean_survey(svy_num):
-    print(svy_num)
     volt = all_surveys[svy_num-1]
     t = all_times[svy_num-1]
     err = all_errors[svy_num-1]
@@ -78,6 +77,7 @@ def clean_survey(svy_num):
     plt.errorbar(t, volt, yerr=err, ls='none',label="Error bar")
     plt.tight_layout()
     lim_pts = plt.ginput(2)
+    plt.close()
     t0 = lim_pts[0][0]
     t1 = lim_pts[1][0]
     idx = where( (t >= t0) & (t <= t1))[0]
