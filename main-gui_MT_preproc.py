@@ -12,7 +12,9 @@ from PyQt5.QtWidgets import QDialog,QApplication
 from PyQt5.QtWidgets import QPushButton,QVBoxLayout
 from PyQt5.QtWidgets import QGroupBox,QFileDialog
 from PyQt5.QtWidgets import QLabel,QGridLayout
+from PyQt5.QtWidgets import QLineEdit
 from funcs_gui_MT_preproc import plot_file, get_info_labels
+from funcs_gui_MT_preproc import clean_survey
 
 class MainWindow(QDialog):
     # MAIN FUNCTION
@@ -22,6 +24,7 @@ class MainWindow(QDialog):
         self.setWindowTitle(self.tr("Pre-Process raw TEM data"))
         self.grid = QGridLayout()
         self.setLayout(self.grid)
+
         # Group 01: Select file to plot data
         self.group_01 = QGroupBox("-- Selecting data --", self)
         self.vbox_01 = QVBoxLayout()
@@ -30,6 +33,7 @@ class MainWindow(QDialog):
         self.vbox_01.addWidget(self.bot_get_data_file)
         self.bot_get_data_file.clicked.connect(self.select_file)
         self.group_01.setLayout(self.vbox_01)
+
         # Group 02: Show information from the file
         self.group_02 = QGroupBox("-- File information --", self)
         self.vbox_02 = QVBoxLayout()
@@ -42,11 +46,29 @@ class MainWindow(QDialog):
         self.vbox_02.addWidget(self.inf_01)
         self.vbox_02.addWidget(self.inf_02)
         self.group_02.setLayout(self.vbox_02)
+
+        # Group 03: Selecting survey to clean
+        self.group_03 = QGroupBox("-- Select survey to clean --", self)
+        self.vbox_03 = QGridLayout()
+        self.survey_number = QLineEdit()
+        self.survey_number.setDisabled(True)
+        self.survey_number.setFixedWidth(50)
+        self.bot_svy_nmb = QPushButton("Let's clean it!")
+        self.bot_svy_nmb.setDisabled(True)
+        self.bot_svy_nmb.setFixedWidth(100)
+        self.vbox_03.addWidget(self.survey_number,1,1)
+        self.vbox_03.addWidget(self.bot_svy_nmb,1,2)
+        self.group_03.setLayout(self.vbox_03)
+
         # Add all groups within the grid
         self.grid.addWidget(self.group_01,1,1)
         self.grid.addWidget(self.group_02,2,1)
+        self.grid.addWidget(self.group_03,3,1)
+
         # Connections
         self.bot_get_data_file.clicked.connect(self.update_labels)
+        self.bot_get_data_file.clicked.connect(self.enable_bot_svy_nmb)
+        self.bot_svy_nmb.clicked.connect(self.push_clean_button)
 
     def select_file(self):
         global fileName
@@ -64,6 +86,15 @@ class MainWindow(QDialog):
         ofn = fileName.split("/")[-1].split(".")[0]
         self.inf_01.setText("Filename: %s" % ofn)
         self.inf_02.setText("Number of surveys: %02d" % ns)
+
+    def enable_bot_svy_nmb(self):
+        self.bot_svy_nmb.setDisabled(False)
+        self.survey_number.setDisabled(False)
+
+    def push_clean_button(self):
+        global raw_svy_nmb
+        raw_svy_nmb = int(self.survey_number.text())
+        clean_survey(raw_svy_nmb)
 
 if __name__ == "__main__":
     import sys
