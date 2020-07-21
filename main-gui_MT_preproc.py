@@ -56,8 +56,11 @@ class MainWindow(QDialog):
         self.bot_svy_nmb = QPushButton("Let's clean it!")
         self.bot_svy_nmb.setDisabled(True)
         self.bot_svy_nmb.setFixedWidth(100)
+        self.bot_write_file = QPushButton("Write file")
         self.vbox_03.addWidget(self.survey_number,1,1)
         self.vbox_03.addWidget(self.bot_svy_nmb,1,2)
+        self.vbox_03.addWidget(self.bot_write_file,2,1)
+        self.bot_write_file.setDisabled(True)
         self.group_03.setLayout(self.vbox_03)
 
         # Add all groups within the grid
@@ -69,6 +72,7 @@ class MainWindow(QDialog):
         self.bot_get_data_file.clicked.connect(self.update_labels)
         self.bot_get_data_file.clicked.connect(self.enable_bot_svy_nmb)
         self.bot_svy_nmb.clicked.connect(self.push_clean_button)
+        self.bot_svy_nmb.clicked.connect(self.enable_write_file_but)
 
     def select_file(self):
         global fileName
@@ -90,6 +94,9 @@ class MainWindow(QDialog):
     def enable_bot_svy_nmb(self):
         self.bot_svy_nmb.setDisabled(False)
         self.survey_number.setDisabled(False)
+
+    def enable_write_file_but(self):
+        self.bot_write_file.setDisabled(False)
 
     def push_clean_button(self):
         global raw_svy_nmb
