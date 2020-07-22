@@ -73,11 +73,20 @@ class MainWindow(QDialog):
         self.vbox_04.addWidget(self.bot_write_file)
         self.group_04.setLayout(self.vbox_04)
 
+        # Group 05: Create confi file for the inversion
+        self.group_05 = QGroupBox("-- 4. Inversion config file --", self)
+        self.vbox_05 = QVBoxLayout()
+        self.bot_config_file = QPushButton("Config file")
+        self.bot_config_file.setDisabled(True)
+        self.vbox_05.addWidget(self.bot_config_file)
+        self.group_05.setLayout(self.vbox_05)
+
         # Add all groups within the grid
         self.grid.addWidget(self.group_01,1,1)
         self.grid.addWidget(self.group_02,1,2)
         self.grid.addWidget(self.group_03,2,1)
         self.grid.addWidget(self.group_04,3,1)
+        self.grid.addWidget(self.group_05,4,1)
 
         # Connections
         self.bot_get_data_file.clicked.connect(self.update_labels)
@@ -85,6 +94,7 @@ class MainWindow(QDialog):
         self.bot_svy_nmb.clicked.connect(self.push_clean_button)
         self.bot_svy_nmb.clicked.connect(self.enable_write_file_but)
         self.bot_svy_nmb.clicked.connect(self.update_labels_writing)
+        self.bot_write_file.clicked.connect(self.enable_config_but)
 
     def select_file(self):
         global fileName
@@ -109,6 +119,9 @@ class MainWindow(QDialog):
 
     def enable_write_file_but(self):
         self.bot_write_file.setDisabled(False)
+
+    def enable_config_but(self):
+        self.bot_config_file.setDisabled(False)
 
     def push_clean_button(self):
         global raw_svy_nmb
