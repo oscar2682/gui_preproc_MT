@@ -47,9 +47,13 @@ class MainWindow(QDialog):
         self.inf_03 = QLabel() # Survey to write
         self.inf_03.setStyleSheet('color: navy')
         self.inf_03.setText("Survey to write: ")
+        self.inf_04 = QLabel() # Noise survey exist?
+        self.inf_04.setStyleSheet('color: navy')
+        self.inf_04.setText("Noise file exist: ")
         self.vbox_02.addWidget(self.inf_01)
         self.vbox_02.addWidget(self.inf_02)
         self.vbox_02.addWidget(self.inf_03)
+        self.vbox_02.addWidget(self.inf_04)
         self.group_02.setLayout(self.vbox_02)
 
         # Group 03: Selecting survey to clean
@@ -105,7 +109,12 @@ class MainWindow(QDialog):
                 ," Universal Sounding Format Files (*.usf)"\
                 , options=options)
         if fileName:
-            plot_file(fileName)
+            flg1 = plot_file(fileName)
+        if flg1 == 1:
+            self.inf_04.setText("Noise file exist: Yes ")
+        elif flg1 == 0:
+            self.inf_04.setStyleSheet('color: red')
+            self.inf_04.setText("Noise file exist: No ")
 
     def update_labels(self):
         ns = get_info_labels(fileName)
