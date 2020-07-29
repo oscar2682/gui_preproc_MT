@@ -1,8 +1,7 @@
-Script to create a GUI for the first steps in order to pre-process MT data
+GUI to pre-process and prepare inversion with TEM data
 
-Choose a Universal Sounding Format (.ufs) file to be ploted.
-If the file begins with the capital letter "R" then it will be assumed
-as the noise file for a given sounding.
+Choose a Universal Sounding Format (.ufs) file to be ploted, the script will look for the noise file and plot
+them together in order to select one sounding to clean.
 
 1. Select an input file
 2. Select a survey within the file
