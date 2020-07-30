@@ -49,11 +49,11 @@ class MainWindow(QDialog):
         self.inf_03.setText("Survey to write: ")
         self.inf_04 = QLabel() # Noise survey exist?
         self.inf_04.setStyleSheet('color: navy')
-        self.inf_04.setText("Noise file exist: ")
+        self.inf_04.setText("Noise file: ")
         self.vbox_02.addWidget(self.inf_01)
         self.vbox_02.addWidget(self.inf_02)
-        self.vbox_02.addWidget(self.inf_03)
         self.vbox_02.addWidget(self.inf_04)
+        self.vbox_02.addWidget(self.inf_03)
         self.group_02.setLayout(self.vbox_02)
 
         # Group 03: Selecting survey to clean
@@ -111,10 +111,11 @@ class MainWindow(QDialog):
         if fileName:
             flg1 = plot_file(fileName)
         if flg1 == 1:
-            self.inf_04.setText("Noise file exist: Yes ")
+            self.inf_04.setStyleSheet('color: navy')
+            self.inf_04.setText("Noise file: Yes")
         elif flg1 == 0:
             self.inf_04.setStyleSheet('color: red')
-            self.inf_04.setText("Noise file exist: No ")
+            self.inf_04.setText("Noise file: No")
 
     def update_labels(self):
         ns = get_info_labels(fileName)
