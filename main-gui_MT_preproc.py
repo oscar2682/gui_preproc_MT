@@ -69,7 +69,7 @@ class MainWindow(QDialog):
         self.vbox_03.addWidget(self.bot_svy_nmb,1,2)
         self.group_03.setLayout(self.vbox_03)
 
-        # Group 04: Selecting survey to clean
+        # Group 04: Writing file
         self.group_04 = QGroupBox("-- 3. Write cleaned data --", self)
         self.vbox_04 = QVBoxLayout()
         self.bot_write_file = QPushButton("Write file")

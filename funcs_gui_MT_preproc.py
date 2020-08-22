@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 plt.style.use('bmh')
 
 def plot_file(fn):
-    global all_surveys, all_times, all_errors
+    global all_surveys, all_times, all_errors, t_n, volt_n, err_n
     f = open(fn)
     lines = f.readlines()
     ns = int(lines[1][-3:])
@@ -19,11 +19,11 @@ def plot_file(fn):
     all_errors = []
     flg1 = 0
     if path.isfile(noisefn):
-        if ns > 1:
+        if ns > 0:
             idx = 10
             cont = 0
-            fig, axs = plt.subplots(2, 1,figsize=(18, 6),facecolor='w',edgecolor='k')
-            axs[0].set_title("Ploting file: %s" % ofn,fontsize=18)
+            fig = plt.subplots(1, 1,figsize=(18, 6),facecolor='w',edgecolor='k')
+            plt.title("Ploting file: %s" % ofn,fontsize=18)
             for i in range(0,ns):
                 npts = int(lines[idx][-3:])
                 t = []; volt = []; err = []
@@ -32,33 +32,28 @@ def plot_file(fn):
                     volt.append(absolute(float(\
                             lines[idx+14+j].split()[3].replace(",", ""))))
                     err.append(float(lines[idx+14+j].split()[4].replace(",", "")))
-                axs[0].loglog(t,volt,'.-', label="Sounding %02d" % (cont+1))
-                axs[0].legend(loc=3)
+                plt.loglog(t,volt,'.-', label="Sounding %02d" % (cont+1))
                 idx = idx + npts + 22
                 cont += 1
                 all_surveys.append(volt)
                 all_times.append(t)
                 all_errors.append(err)
-            axs[0].set_xlabel("Time, s")
-            axs[0].set_ylabel("Volt/Amp",fontsize=8)
         f = open(noisefn)
         lines = f.readlines()
         idx = 10
         npts = int(lines[idx][-3:])
-        t = []; volt = []; err = []
+        t_n = []; volt_n = []; err_n = []
         for j in range(0,npts):
-            t.append(float(lines[idx+14+j].split()[1].replace(",", "")))
-            volt.append(absolute(float(\
+            t_n.append(float(lines[idx+14+j].split()[1].replace(",", "")))
+            volt_n.append(absolute(float(\
                     lines[idx+14+j].split()[3].replace(",", ""))))
-            err.append(float(lines[idx+14+j].split()[4].replace(",", "")))
-        axs[1].set_title("Noise curve for: %s" % ofn,fontsize=18)
-        axs[1].loglog(t,volt,'.-', label="Noise sounding")
-        axs[1].errorbar(t, volt, yerr=err, ls='none',label="Error bar",elinewidth=0.5)
-        axs[1].set_xlabel("Time, s")
-        axs[1].set_ylabel("Volt/Amp",fontsize=8)
-        axs[1].set_ylim([1e-8,1e-4])
-        axs[0].get_shared_x_axes().join(axs[0], axs[1])
-        axs[1].legend(loc=3)
+            err_n.append(float(lines[idx+14+j].split()[4].replace(",", "")))
+        plt.loglog(t_n,volt_n,'.-', label="Noise sounding")
+#        plt.errorbar(t_n, volt_n, yerr=err, ls='none',label="Error bar",elinewidth=0.5)
+        plt.xlabel("Time, s")
+        plt.ylabel("Volt/Amp",fontsize=8)
+#        plt.ylim([1e-8,1e-3])
+        plt.legend(loc=1)
         flg1 = 1
     else:
         if ns > 1:
@@ -104,7 +99,9 @@ def clean_survey(svy_num):
     plt.xlabel("Time, s")
     plt.ylabel("Volt/Amp",fontsize=8)
     plt.loglog(t,volt,'.-', label="Sounding %02d" % (svy_num))
+    plt.loglog(t_n,volt_n,'.-', label="Noise")
     plt.errorbar(t, volt, yerr=err, ls='none',label="Error bar")
+    plt.legend(loc=1)
     plt.tight_layout()
     lim_pts = plt.ginput(2)
     plt.close()
@@ -128,6 +125,7 @@ def clean_survey(svy_num):
     axs[0].set_ylabel("Volt/Amp",fontsize=8)
     axs[1].loglog(f_t,f_volt,'.-', label="Sounding %02d" % (svy_num))
     axs[1].errorbar(f_t, f_volt, yerr=f_err, ls='none',label="Error bar")
+    axs[1].loglog(t_n,volt_n,'.-', label="Noise")
     axs[1].set_xlabel("Time, s")
     axs[1].set_ylabel("Volt/Amp",fontsize=8)
     axs[1].legend(loc=3)
