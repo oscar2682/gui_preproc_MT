@@ -94,7 +94,7 @@ def clean_survey(svy_num):
     volt = all_surveys[svy_num-1]
     t = all_times[svy_num-1]
     err = all_errors[svy_num-1]
-    plt.figure(figsize=(8, 3),facecolor='w',edgecolor='k')
+    plt.figure(figsize=(18, 6),facecolor='w',edgecolor='k')
     plt.title("Survey Number: %02d" % int(svy_num),fontsize=18)
     plt.xlabel("Time, s")
     plt.ylabel("Volt/Amp",fontsize=8)
@@ -115,11 +115,11 @@ def clean_survey(svy_num):
         f_volt.append(volt[i])
         f_t.append(t[i])
         f_err.append(err[i])
-    fig, axs = plt.subplots(2, 1,figsize=(8, 4),facecolor='w',edgecolor='k')
+    fig, axs = plt.subplots(2, 1,figsize=(18, 6),facecolor='w',edgecolor='k')
     axs[0].set_title("Survey Number: %02d" % int(svy_num),fontsize=18)
     axs[0].loglog(t,volt,'.-', label="Sounding %02d" % (svy_num))
     axs[0].errorbar(t, volt, yerr=err, ls='none',label="Error bar")
-    axs[0].axvspan(t0,t1,alpha=0.15,color='red',label="Ventana cortada")
+    axs[0].axvspan(t0,t1,alpha=0.15,color='red',label="Final cut")
     axs[0].legend(loc=3)
     axs[0].set_xlabel("Time, s")
     axs[0].set_ylabel("Volt/Amp",fontsize=8)
@@ -128,7 +128,7 @@ def clean_survey(svy_num):
     axs[1].loglog(t_n,volt_n,'.-', label="Noise")
     axs[1].set_xlabel("Time, s")
     axs[1].set_ylabel("Volt/Amp",fontsize=8)
-    axs[1].legend(loc=3)
+    axs[1].legend(loc=1)
     axs[1].get_shared_x_axes().join(axs[1], axs[0])
     plt.tight_layout()
     plt.show()
