@@ -7,7 +7,7 @@ It shows a time series and allows you to select points, either one by one or by 
 
 Developed by: Oscar Castro-Artola. April, 2020. E-Mail:oscar.castro@unicach.mx"
 """
-from PyQt5.QtGui import *
+#from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QDialog,QApplication
 from PyQt5.QtWidgets import QPushButton,QVBoxLayout
 from PyQt5.QtWidgets import QGroupBox,QFileDialog
@@ -22,9 +22,14 @@ class MainWindow(QDialog):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.resize(300,100)
-        self.setWindowTitle(self.tr("Pre-Process raw TEM data"))
+        self.setWindowTitle(self.tr("GUI"))
         self.grid = QGridLayout()
         self.setLayout(self.grid)
+         # Exit button
+        self.bot_exit = QPushButton("Exit",self)
+        self.bot_exit.setFixedWidth(80)
+        # Title
+        self.title = QLabel("<h3>GUI to process invert and plot TEM data<\h3>",self)
 
         # Group 01: Select file to plot data
         self.group_01 = QGroupBox("-- 1. Selecting data --", self)
@@ -87,11 +92,13 @@ class MainWindow(QDialog):
         self.group_05.setLayout(self.vbox_05)
 
         # Add all groups within the grid
-        self.grid.addWidget(self.group_01,1,1)
-        self.grid.addWidget(self.group_02,1,2)
-        self.grid.addWidget(self.group_03,2,1)
-        self.grid.addWidget(self.group_04,3,1)
-        self.grid.addWidget(self.group_05,4,1)
+        self.grid.addWidget(self.title,1,1,1,3)
+        self.grid.addWidget(self.group_01,2,1)
+        self.grid.addWidget(self.group_02,2,2)
+        self.grid.addWidget(self.group_03,3,1)
+        self.grid.addWidget(self.group_04,4,1)
+        self.grid.addWidget(self.group_05,5,1)
+        self.grid.addWidget(self.bot_exit,9,3)
 
         # Connections
         self.bot_get_data_file.clicked.connect(self.update_labels)
@@ -101,7 +108,7 @@ class MainWindow(QDialog):
         self.bot_svy_nmb.clicked.connect(self.update_labels_writing)
         self.bot_config_file.clicked.connect(self.write_config_file)
         self.bot_write_file.clicked.connect(self.enable_config_but)
-
+        self.bot_exit.clicked.connect(self.close)
 
     def select_file(self):
         global fileName
@@ -192,9 +199,8 @@ class MainWindow(QDialog):
         self.box_layout02.addWidget(prm31_l,1,2)
         self.box_02.setLayout(self.box_layout02)
 
-
         layout_cfg_win.addWidget(self.box_01,1,1)
-        layout_cfg_win.addWidget(self.box_02,2,1)
+        layout_cfg_win.addWidget(self.box_02,1,2)
         cfg_edit_window.exec_()
 
 if __name__ == "__main__":
