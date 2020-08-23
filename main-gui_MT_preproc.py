@@ -156,6 +156,7 @@ class MainWindow(QDialog):
         cfg_edit_window.setWindowTitle(self.tr("Inversion parameters"))
         cfg_edit_window.resize(200,30)
         layout_cfg_win = QGridLayout(cfg_edit_window)
+
         self.box_01 = QGroupBox("-- Configuration file 1 --", self)
         self.box_layout01 = QGridLayout()
         prm01 = QLineEdit(self)
@@ -199,8 +200,12 @@ class MainWindow(QDialog):
         self.box_layout02.addWidget(prm31_l,1,2)
         self.box_02.setLayout(self.box_layout02)
 
+        self.bot_save_param = QPushButton("Save parameters",self)
+#        self.bot_save_param.setFixedWidth(80)
+
         layout_cfg_win.addWidget(self.box_01,1,1)
         layout_cfg_win.addWidget(self.box_02,1,2)
+        layout_cfg_win.addWidget(self.bot_save_param,2,1,1,3)
         cfg_edit_window.exec_()
 
 if __name__ == "__main__":

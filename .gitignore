@@ -1,5 +1,5 @@
 *.usf
 *.png
 __pycache__/
-read_usf_file/
+test_scripts/
 GIT_STEPS
