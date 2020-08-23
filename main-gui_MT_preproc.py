@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QPushButton,QVBoxLayout
 from PyQt5.QtWidgets import QGroupBox,QFileDialog
 from PyQt5.QtWidgets import QLabel,QGridLayout
 from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QWidget
 from funcs_gui_MT_preproc import plot_file, get_info_labels
 from funcs_gui_MT_preproc import clean_survey
 
@@ -77,7 +78,7 @@ class MainWindow(QDialog):
         self.vbox_04.addWidget(self.bot_write_file)
         self.group_04.setLayout(self.vbox_04)
 
-        # Group 05: Create confi file for the inversion
+        # Group 05: Create config file for the inversion
         self.group_05 = QGroupBox("-- 4. Inversion config file --", self)
         self.vbox_05 = QVBoxLayout()
         self.bot_config_file = QPushButton("Config file")
@@ -98,7 +99,9 @@ class MainWindow(QDialog):
         self.bot_svy_nmb.clicked.connect(self.push_clean_button)
         self.bot_svy_nmb.clicked.connect(self.enable_write_file_but)
         self.bot_svy_nmb.clicked.connect(self.update_labels_writing)
+        self.bot_config_file.clicked.connect(self.write_config_file)
         self.bot_write_file.clicked.connect(self.enable_config_but)
+
 
     def select_file(self):
         global fileName
@@ -140,6 +143,59 @@ class MainWindow(QDialog):
     
     def update_labels_writing(self):
         self.inf_03.setText("Survey to write: %02d" % raw_svy_nmb)
+
+    def write_config_file(self):
+        cfg_edit_window = QDialog(self)
+        cfg_edit_window.setWindowTitle(self.tr("Inversion parameters"))
+        cfg_edit_window.resize(200,30)
+        layout_cfg_win = QGridLayout(cfg_edit_window)
+        self.box_01 = QGroupBox("-- Configuration file 1 --", self)
+        self.box_layout01 = QGridLayout()
+        prm01 = QLineEdit(self)
+        prm01_l = QLabel("Parametro 1")
+        prm01_l.setStyleSheet('color: green')
+        prm02 = QLineEdit(self)
+        prm02_l = QLabel("Parametro 2")
+        prm02_l.setStyleSheet('color: green')
+        prm03 = QLineEdit(self)
+        prm03_l = QLabel("Parametro 3")
+        prm03_l.setStyleSheet('color: green')
+        prm04 = QLineEdit(self)
+        prm04_l = QLabel("Parametro 4")
+        prm04_l.setStyleSheet('color: green')
+        prm05 = QLineEdit(self)
+        prm05_l = QLabel("Parametro 5")
+        prm05_l.setStyleSheet('color: green')
+        prm06 = QLineEdit(self)
+        prm06_l = QLabel("Parametro 6")
+        prm06_l.setStyleSheet('color: green')
+        self.box_layout01.addWidget(prm01,1,1)
+        self.box_layout01.addWidget(prm01_l,1,2)
+        self.box_layout01.addWidget(prm02,2,1)
+        self.box_layout01.addWidget(prm02_l,2,2)
+        self.box_layout01.addWidget(prm03,3,1)
+        self.box_layout01.addWidget(prm03_l,3,2)
+        self.box_layout01.addWidget(prm04,4,1)
+        self.box_layout01.addWidget(prm04_l,4,2)
+        self.box_layout01.addWidget(prm05,5,1)
+        self.box_layout01.addWidget(prm05_l,5,2)
+        self.box_layout01.addWidget(prm06,6,1)
+        self.box_layout01.addWidget(prm06_l,6,2)
+        self.box_01.setLayout(self.box_layout01)
+
+        self.box_02 = QGroupBox("-- Configuration file 2 --", self)
+        self.box_layout02 = QGridLayout()
+        prm31 = QLineEdit(self)
+        prm31_l = QLabel("Parametro 1")
+        prm31_l.setStyleSheet('color: green')
+        self.box_layout02.addWidget(prm31,1,1)
+        self.box_layout02.addWidget(prm31_l,1,2)
+        self.box_02.setLayout(self.box_layout02)
+
+
+        layout_cfg_win.addWidget(self.box_01,1,1)
+        layout_cfg_win.addWidget(self.box_02,2,1)
+        cfg_edit_window.exec_()
 
 if __name__ == "__main__":
     import sys
