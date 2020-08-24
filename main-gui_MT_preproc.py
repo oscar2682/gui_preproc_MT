@@ -35,19 +35,19 @@ class MainWindow(QDialog):
         self.title = QLabel("<h3>GUI to invert 1D TEM data<\h3>",self)
 
         # Group 01: Select file to plot data
-        self.group_01 = QGroupBox("-- 1. Selecting data --", self)
+        self.group_01 = QGroupBox("-- 1. Config & select data --", self)
         self.vbox_01 = QGridLayout()
         self.coil_len = QLineEdit()
-        self.coil_lab = QLabel("Coil length [m]") 
+        self.coil_lab = QLabel("Tx length [m]") 
         self.ramp_len = QLineEdit()
         self.ramp_len.setFixedWidth(100)
         self.coil_len.setFixedWidth(100)
-        self.ramp_lab = QLabel("Ramp duration [s]") 
+        self.ramp_lab = QLabel("Ramp time [s]") 
         self.bot_get_data_file = QPushButton("Select files")
         self.invtype_lab = QLabel("Select inversion method:") 
         self.bot_get_data_file.setDisabled(False)
-        self.invtype_occ1 = QCheckBox("Occam-1",self)
-        self.invtype_occ2 = QCheckBox("Occam-2",self)
+        self.invtype_occ1 = QCheckBox("Occam-R1",self)
+        self.invtype_occ2 = QCheckBox("Occam-R2",self)
         self.invtype_mrq = QCheckBox("Marquardt",self)
         self.invtype_eq = QCheckBox("Equivalents",self)
         self.vbox_01.addWidget(self.coil_len,1,1)
@@ -100,16 +100,25 @@ class MainWindow(QDialog):
 
         # Group 04: Writing file
         self.group_04 = QGroupBox("-- 3. Write cleaned data --", self)
-        self.vbox_04 = QVBoxLayout()
+        self.vbox_04 = QGridLayout()
+        self.err_fixed_chkbx = QCheckBox("Use discrepancy from data",self)
+        self.err_fixed_chkbx.setChecked(True)
+        self.err_val = QLineEdit("0.01")
+        self.fix_err_lab = QLabel("Fixed value:")
+        self.err_val.setDisabled(True)
+        self.err_val.setFixedWidth(80)
+        self.vbox_04.addWidget(self.err_fixed_chkbx,1,1)
+        self.vbox_04.addWidget(self.err_val,3,1)
+        self.vbox_04.addWidget(self.fix_err_lab,2,1)
         self.bot_write_file = QPushButton("Write file")
         self.bot_write_file.setDisabled(True)
-        self.vbox_04.addWidget(self.bot_write_file)
+        self.vbox_04.addWidget(self.bot_write_file,4,1)
         self.group_04.setLayout(self.vbox_04)
 
         # Group 05: Create config file for the inversion
-        self.group_05 = QGroupBox("-- 4. Inversion config file --", self)
+        self.group_05 = QGroupBox("-- 4. Inversion parameters --", self)
         self.vbox_05 = QVBoxLayout()
-        self.bot_config_file = QPushButton("Config file")
+        self.bot_config_file = QPushButton("Config parameters")
         self.bot_config_file.setDisabled(True)
         self.vbox_05.addWidget(self.bot_config_file)
         self.group_05.setLayout(self.vbox_05)
@@ -117,7 +126,7 @@ class MainWindow(QDialog):
         # Add all groups within the grid
         self.grid.addWidget(self.title,1,1,1,2)
         self.grid.addWidget(self.group_01,2,1)
-        self.grid.addWidget(self.group_02,2,2,1,3)
+        self.grid.addWidget(self.group_02,2,2,1,1)
         self.grid.addWidget(self.group_03,3,1)
         self.grid.addWidget(self.group_04,4,1)
         self.grid.addWidget(self.group_05,5,1)
@@ -139,6 +148,7 @@ class MainWindow(QDialog):
         self.invtype_occ2.stateChanged.connect(self.toggle_chkbx_info)
         self.invtype_mrq.stateChanged.connect(self.toggle_chkbx_info)
         self.invtype_eq.stateChanged.connect(self.toggle_chkbx_info)
+        self.err_fixed_chkbx.stateChanged.connect(self.toggle_chkbx_err)
         
         self.bg  =QButtonGroup()
         self.bg.addButton(self.invtype_occ1,1)
@@ -146,6 +156,14 @@ class MainWindow(QDialog):
         self.bg.addButton(self.invtype_mrq,3)
         self.bg.addButton(self.invtype_eq,4)
 
+    def toggle_chkbx_err(self):
+        global flg_fix
+        if self.err_fixed_chkbx.isChecked():
+            self.err_val.setDisabled(True)
+            flg_fix = False
+        else:
+            self.err_val.setDisabled(False)
+            flg_fix = True
 
     def toggle_chkbx_info(self):
         if self.invtype_occ1.isChecked():
@@ -196,7 +214,10 @@ class MainWindow(QDialog):
     def write_data_file(self):
         coillen = float(self.coil_len.text())
         ramplen = float(self.ramp_len.text())
-        write_data_all_datafile(coillen, ramplen)
+        err_fixed_val = []
+        if flg_fix:
+            err_fixed_val = float(self.err_val.text())
+        write_data_all_datafile(coillen, ramplen, fix=flg_fix, val=err_fixed_val)
 
     def push_clean_button(self):
         global raw_svy_nmb

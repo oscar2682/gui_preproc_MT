@@ -134,7 +134,12 @@ def clean_survey(svy_num):
     plt.tight_layout()
     plt.show()
 
-def write_data_all_datafile(clen,rlen):
+def write_data_all_datafile(clen,rlen,fix=False,val=[]):
+    print(fix,val)
+    if fix:
+        for i in range(len(f_t)):
+            f_err[i] = val
+
     datafilename  = "%s.inv" % ofn
     dfn = open(datafilename, 'w')
     dfn.write("TEM\n")
