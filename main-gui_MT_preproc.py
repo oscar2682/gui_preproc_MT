@@ -12,10 +12,11 @@ from PyQt5.QtWidgets import QDialog,QApplication
 from PyQt5.QtWidgets import QPushButton,QVBoxLayout
 from PyQt5.QtWidgets import QGroupBox,QFileDialog
 from PyQt5.QtWidgets import QLabel,QGridLayout
-from PyQt5.QtWidgets import QLineEdit
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QLineEdit,QCheckBox
+from PyQt5.QtWidgets import QWidget,QButtonGroup
 from funcs_gui_MT_preproc import plot_file, get_info_labels
-from funcs_gui_MT_preproc import clean_survey
+from funcs_gui_MT_preproc import clean_survey, write_data_all_datafile
+import matplotlib.pyplot as plt
 
 class MainWindow(QDialog):
     # MAIN FUNCTION
@@ -28,15 +29,37 @@ class MainWindow(QDialog):
          # Exit button
         self.bot_exit = QPushButton("Exit",self)
         self.bot_exit.setFixedWidth(80)
+        self.bot_close_all = QPushButton("Close all figures")
         # Title
-        self.title = QLabel("<h3>GUI to process invert and plot TEM data<\h3>",self)
+#        self.title = QLabel("<h3>GUI to process invert and plot TEM data<\h3>",self)
+        self.title = QLabel("<h3>GUI to invert 1D TEM data<\h3>",self)
 
         # Group 01: Select file to plot data
         self.group_01 = QGroupBox("-- 1. Selecting data --", self)
-        self.vbox_01 = QVBoxLayout()
+        self.vbox_01 = QGridLayout()
+        self.coil_len = QLineEdit()
+        self.coil_lab = QLabel("Coil length [m]") 
+        self.ramp_len = QLineEdit()
+        self.ramp_len.setFixedWidth(100)
+        self.coil_len.setFixedWidth(100)
+        self.ramp_lab = QLabel("Ramp duration [s]") 
         self.bot_get_data_file = QPushButton("Select files")
+        self.invtype_lab = QLabel("Select inversion method:") 
         self.bot_get_data_file.setDisabled(False)
-        self.vbox_01.addWidget(self.bot_get_data_file)
+        self.invtype_occ1 = QCheckBox("Occam-1",self)
+        self.invtype_occ2 = QCheckBox("Occam-2",self)
+        self.invtype_mrq = QCheckBox("Marquardt",self)
+        self.invtype_eq = QCheckBox("Equivalents",self)
+        self.vbox_01.addWidget(self.coil_len,1,1)
+        self.vbox_01.addWidget(self.coil_lab,1,2)
+        self.vbox_01.addWidget(self.ramp_len,2,1)
+        self.vbox_01.addWidget(self.ramp_lab,2,2)
+        self.vbox_01.addWidget(self.invtype_lab,3,1)
+        self.vbox_01.addWidget(self.invtype_occ1,4,1)
+        self.vbox_01.addWidget(self.invtype_occ2,4,2)
+        self.vbox_01.addWidget(self.invtype_mrq,5,1)
+        self.vbox_01.addWidget(self.invtype_eq,5,2)
+        self.vbox_01.addWidget(self.bot_get_data_file,6,1,1,2)
         self.bot_get_data_file.clicked.connect(self.select_file)
         self.group_01.setLayout(self.vbox_01)
 
@@ -92,13 +115,14 @@ class MainWindow(QDialog):
         self.group_05.setLayout(self.vbox_05)
 
         # Add all groups within the grid
-        self.grid.addWidget(self.title,1,1,1,3)
+        self.grid.addWidget(self.title,1,1,1,2)
         self.grid.addWidget(self.group_01,2,1)
-        self.grid.addWidget(self.group_02,2,2)
+        self.grid.addWidget(self.group_02,2,2,1,3)
         self.grid.addWidget(self.group_03,3,1)
         self.grid.addWidget(self.group_04,4,1)
         self.grid.addWidget(self.group_05,5,1)
         self.grid.addWidget(self.bot_exit,9,3)
+        self.grid.addWidget(self.bot_close_all,9,2)
 
         # Connections
         self.bot_get_data_file.clicked.connect(self.update_labels)
@@ -108,7 +132,33 @@ class MainWindow(QDialog):
         self.bot_svy_nmb.clicked.connect(self.update_labels_writing)
         self.bot_config_file.clicked.connect(self.write_config_file)
         self.bot_write_file.clicked.connect(self.enable_config_but)
+        self.bot_write_file.clicked.connect(self.write_data_file)
         self.bot_exit.clicked.connect(self.close)
+        self.bot_close_all.clicked.connect(self.close_all_fig)
+        self.invtype_occ1.stateChanged.connect(self.toggle_chkbx_info)
+        self.invtype_occ2.stateChanged.connect(self.toggle_chkbx_info)
+        self.invtype_mrq.stateChanged.connect(self.toggle_chkbx_info)
+        self.invtype_eq.stateChanged.connect(self.toggle_chkbx_info)
+        
+        self.bg  =QButtonGroup()
+        self.bg.addButton(self.invtype_occ1,1)
+        self.bg.addButton(self.invtype_occ2,2)
+        self.bg.addButton(self.invtype_mrq,3)
+        self.bg.addButton(self.invtype_eq,4)
+
+
+    def toggle_chkbx_info(self):
+        if self.invtype_occ1.isChecked():
+            invtype = "occ1"
+        elif self.invtype_occ2.isChecked():
+            invtype = "occ2"
+        elif self.invtype_mrq.isChecked():
+            invtype = "mrq"
+        elif self.invtype_eq.isChecked():
+            invtype = "eq"
+
+    def close_all_fig(self):
+        plt.close('all')
 
     def select_file(self):
         global fileName
@@ -142,6 +192,11 @@ class MainWindow(QDialog):
 
     def enable_config_but(self):
         self.bot_config_file.setDisabled(False)
+
+    def write_data_file(self):
+        coillen = float(self.coil_len.text())
+        ramplen = float(self.ramp_len.text())
+        write_data_all_datafile(coillen, ramplen)
 
     def push_clean_button(self):
         global raw_svy_nmb

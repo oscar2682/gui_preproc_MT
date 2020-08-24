@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 plt.style.use('bmh')
 
 def plot_file(fn):
-    global all_surveys, all_times, all_errors, t_n, volt_n, err_n
+    global all_surveys, all_times, all_errors, t_n, volt_n, err_n, ofn
     f = open(fn)
     lines = f.readlines()
     ns = int(lines[1][-3:])
@@ -91,6 +91,7 @@ def get_info_labels(fn):
     return ns
 
 def clean_survey(svy_num):
+    global f_t, f_volt, f_err
     volt = all_surveys[svy_num-1]
     t = all_times[svy_num-1]
     err = all_errors[svy_num-1]
@@ -132,3 +133,16 @@ def clean_survey(svy_num):
     axs[1].get_shared_x_axes().join(axs[1], axs[0])
     plt.tight_layout()
     plt.show()
+
+def write_data_all_datafile(clen,rlen):
+    datafilename  = "%s.inv" % ofn
+    dfn = open(datafilename, 'w')
+    dfn.write("TEM\n")
+    dfn.write(" %s\n" % ofn)
+    dfn.write("   0.0000000000000000        0.0000000000000000        %20.15f        %20.15f\n" % (clen,clen))
+    dfn.write("   1.0000000000000000\n")
+    dfn.write(" %20.15f\n" % (rlen*-1.0))
+    dfn.write("%d\n" % (len(f_t)))
+    for i in range(len(f_t)):
+        dfn.write("%14.12f  %14.12f  %14.12f\n" % (f_t[i], f_volt[i], f_err[i]))
+    dfn.close()
