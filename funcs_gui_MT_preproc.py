@@ -134,11 +134,15 @@ def clean_survey(svy_num):
     plt.tight_layout()
     plt.show()
 
-def write_data_all_datafile(clen,rlen,fix=False,val=[]):
-    print(fix,val)
-    if fix:
+def write_data_all_datafile(clen,rlen,val=[]):
+    print(val)
+    f_err1 = []
+    if val:
         for i in range(len(f_t)):
-            f_err[i] = val
+            f_err1.append(val)
+    else:
+        for i in range(len(f_t)):
+            f_err1.append(f_err[i])
 
     datafilename  = "%s.inv" % ofn
     dfn = open(datafilename, 'w')
@@ -149,5 +153,5 @@ def write_data_all_datafile(clen,rlen,fix=False,val=[]):
     dfn.write(" %20.15f\n" % (rlen*-1.0))
     dfn.write("%d\n" % (len(f_t)))
     for i in range(len(f_t)):
-        dfn.write("%14.12f  %14.12f  %14.12f\n" % (f_t[i], f_volt[i], f_err[i]))
+        dfn.write("%14.12f  %14.12f  %14.12f\n" % (f_t[i], f_volt[i], f_err1[i]))
     dfn.close()

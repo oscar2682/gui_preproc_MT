@@ -157,13 +157,10 @@ class MainWindow(QDialog):
         self.bg.addButton(self.invtype_eq,4)
 
     def toggle_chkbx_err(self):
-        global flg_fix
         if self.err_fixed_chkbx.isChecked():
             self.err_val.setDisabled(True)
-            flg_fix = False
         else:
             self.err_val.setDisabled(False)
-            flg_fix = True
 
     def toggle_chkbx_info(self):
         if self.invtype_occ1.isChecked():
@@ -214,10 +211,11 @@ class MainWindow(QDialog):
     def write_data_file(self):
         coillen = float(self.coil_len.text())
         ramplen = float(self.ramp_len.text())
-        err_fixed_val = []
-        if flg_fix:
+        if not self.err_fixed_chkbx.isChecked():
             err_fixed_val = float(self.err_val.text())
-        write_data_all_datafile(coillen, ramplen, fix=flg_fix, val=err_fixed_val)
+        else:
+            err_fixed_val = []
+        write_data_all_datafile(coillen, ramplen, val=err_fixed_val)
 
     def push_clean_button(self):
         global raw_svy_nmb
