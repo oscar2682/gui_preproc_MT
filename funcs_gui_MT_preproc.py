@@ -135,7 +135,6 @@ def clean_survey(svy_num):
     plt.show()
 
 def write_data_all_datafile(clen,rlen,val=[]):
-    print(val)
     f_err1 = []
     if val:
         for i in range(len(f_t)):

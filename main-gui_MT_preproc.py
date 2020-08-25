@@ -35,30 +35,20 @@ class MainWindow(QDialog):
         self.title = QLabel("<h3>GUI to invert 1D TEM data<\h3>",self)
 
         # Group 01: Select file to plot data
-        self.group_01 = QGroupBox("-- 1. Config & select data --", self)
+        self.group_01 = QGroupBox("-- 1. Config and select data --", self)
         self.vbox_01 = QGridLayout()
         self.coil_len = QLineEdit()
-        self.coil_lab = QLabel("Tx length [m]") 
+        self.coil_lab = QLabel("Tx-Rx length [m]") 
         self.ramp_len = QLineEdit()
         self.ramp_len.setFixedWidth(100)
         self.coil_len.setFixedWidth(100)
         self.ramp_lab = QLabel("Ramp time [s]") 
         self.bot_get_data_file = QPushButton("Select files")
-        self.invtype_lab = QLabel("Select inversion method:") 
         self.bot_get_data_file.setDisabled(False)
-        self.invtype_occ1 = QCheckBox("Occam-R1",self)
-        self.invtype_occ2 = QCheckBox("Occam-R2",self)
-        self.invtype_mrq = QCheckBox("Marquardt",self)
-        self.invtype_eq = QCheckBox("Equivalents",self)
         self.vbox_01.addWidget(self.coil_len,1,1)
         self.vbox_01.addWidget(self.coil_lab,1,2)
         self.vbox_01.addWidget(self.ramp_len,2,1)
         self.vbox_01.addWidget(self.ramp_lab,2,2)
-        self.vbox_01.addWidget(self.invtype_lab,3,1)
-        self.vbox_01.addWidget(self.invtype_occ1,4,1)
-        self.vbox_01.addWidget(self.invtype_occ2,4,2)
-        self.vbox_01.addWidget(self.invtype_mrq,5,1)
-        self.vbox_01.addWidget(self.invtype_eq,5,2)
         self.vbox_01.addWidget(self.bot_get_data_file,6,1,1,2)
         self.bot_get_data_file.clicked.connect(self.select_file)
         self.group_01.setLayout(self.vbox_01)
@@ -79,10 +69,18 @@ class MainWindow(QDialog):
         self.inf_04 = QLabel() # Noise survey exist?
         self.inf_04.setStyleSheet('color: navy')
         self.inf_04.setText("Noise file: ")
+        self.inf_05 = QLabel() # Data file
+        self.inf_05.setStyleSheet('color: red')
+        self.inf_05.setText("Data file status: Not written ")
+        self.inf_06 = QLabel() # Data file
+        self.inf_06.setStyleSheet('color: red')
+        self.inf_06.setText("Inversion parameters: Not set")
         self.vbox_02.addWidget(self.inf_01)
         self.vbox_02.addWidget(self.inf_02)
         self.vbox_02.addWidget(self.inf_04)
         self.vbox_02.addWidget(self.inf_03)
+        self.vbox_02.addWidget(self.inf_05)
+        self.vbox_02.addWidget(self.inf_06)
         self.group_02.setLayout(self.vbox_02)
 
         # Group 03: Selecting survey to clean
@@ -117,11 +115,29 @@ class MainWindow(QDialog):
 
         # Group 05: Create config file for the inversion
         self.group_05 = QGroupBox("-- 4. Inversion parameters --", self)
-        self.vbox_05 = QVBoxLayout()
+        self.vbox_05 = QGridLayout()
+        self.invtype_lab = QLabel("Select inversion method:") 
+        self.invtype_occ1 = QCheckBox("Occam-R1",self)
+        self.invtype_occ2 = QCheckBox("Occam-R2",self)
+        self.invtype_mrq = QCheckBox("Marquardt",self)
+        self.invtype_eq = QCheckBox("Equivalents",self)
         self.bot_config_file = QPushButton("Config parameters")
         self.bot_config_file.setDisabled(True)
-        self.vbox_05.addWidget(self.bot_config_file)
+        self.vbox_05.addWidget(self.invtype_lab,1,1)
+        self.vbox_05.addWidget(self.invtype_occ1,2,1)
+        self.vbox_05.addWidget(self.invtype_occ2,2,2)
+        self.vbox_05.addWidget(self.invtype_mrq,3,1)
+        self.vbox_05.addWidget(self.invtype_eq,3,2)
+        self.vbox_05.addWidget(self.bot_config_file,4,1,1,2)
         self.group_05.setLayout(self.vbox_05)
+
+        # Group 06: run-inversion button
+        self.group_06 = QGroupBox("-- 5. Run inversion --", self)
+        self.vbox_06 = QGridLayout()
+        self.bot_run_inv = QPushButton("Run inversion")
+        self.bot_run_inv.setDisabled(True)
+        self.vbox_06.addWidget(self.bot_run_inv,1,1)
+        self.group_06.setLayout(self.vbox_06)
 
         # Add all groups within the grid
         self.grid.addWidget(self.title,1,1,1,2)
@@ -130,6 +146,7 @@ class MainWindow(QDialog):
         self.grid.addWidget(self.group_03,3,1)
         self.grid.addWidget(self.group_04,4,1)
         self.grid.addWidget(self.group_05,5,1)
+        self.grid.addWidget(self.group_06,6,1)
         self.grid.addWidget(self.bot_exit,9,3)
         self.grid.addWidget(self.bot_close_all,9,2)
 
@@ -142,6 +159,7 @@ class MainWindow(QDialog):
         self.bot_config_file.clicked.connect(self.write_config_file)
         self.bot_write_file.clicked.connect(self.enable_config_but)
         self.bot_write_file.clicked.connect(self.write_data_file)
+        self.bot_write_file.clicked.connect(self.update_lab_data_written)
         self.bot_exit.clicked.connect(self.close)
         self.bot_close_all.clicked.connect(self.close_all_fig)
         self.invtype_occ1.stateChanged.connect(self.toggle_chkbx_info)
@@ -149,12 +167,22 @@ class MainWindow(QDialog):
         self.invtype_mrq.stateChanged.connect(self.toggle_chkbx_info)
         self.invtype_eq.stateChanged.connect(self.toggle_chkbx_info)
         self.err_fixed_chkbx.stateChanged.connect(self.toggle_chkbx_err)
+        self.bot_config_file.clicked.connect(self.enable_bot_run_inv)
+        self.bot_config_file.clicked.connect(self.update_lab_inv_param)
         
         self.bg  =QButtonGroup()
         self.bg.addButton(self.invtype_occ1,1)
         self.bg.addButton(self.invtype_occ2,2)
         self.bg.addButton(self.invtype_mrq,3)
         self.bg.addButton(self.invtype_eq,4)
+
+    def update_lab_data_written(self):
+        self.inf_05.setStyleSheet('color: green')
+        self.inf_05.setText("Data file status: Written ")
+
+    def update_lab_inv_param(self):
+        self.inf_06.setStyleSheet('color: green')
+        self.inf_06.setText("Inversion parameters: Ready")
 
     def toggle_chkbx_err(self):
         if self.err_fixed_chkbx.isChecked():
@@ -197,6 +225,9 @@ class MainWindow(QDialog):
         ofn = fileName.split("/")[-1].split(".")[0]
         self.inf_01.setText("Filename: %s" % ofn)
         self.inf_02.setText("Number of surveys: %02d" % ns)
+
+    def enable_bot_run_inv(self):
+        self.bot_run_inv.setDisabled(False)
 
     def enable_bot_svy_nmb(self):
         self.bot_svy_nmb.setDisabled(False)
@@ -275,12 +306,14 @@ class MainWindow(QDialog):
         self.box_02.setLayout(self.box_layout02)
 
         self.bot_save_param = QPushButton("Save parameters",self)
-#        self.bot_save_param.setFixedWidth(80)
-
+        self.bot_save_param2 = QPushButton('Save parameters && Exit',self)
+        self.bot_save_param2.clicked.connect(cfg_edit_window.close)
         layout_cfg_win.addWidget(self.box_01,1,1)
         layout_cfg_win.addWidget(self.box_02,1,2)
-        layout_cfg_win.addWidget(self.bot_save_param,2,1,1,3)
+        layout_cfg_win.addWidget(self.bot_save_param,2,1)
+        layout_cfg_win.addWidget(self.bot_save_param2,2,2)
         cfg_edit_window.exec_()
+
 
 if __name__ == "__main__":
     import sys
