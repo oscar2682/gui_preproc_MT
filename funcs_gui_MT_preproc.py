@@ -4,6 +4,8 @@ from os import path
 import matplotlib.pyplot as plt
 import warnings
 from numpy import absolute,where, array, logical_and
+import stat
+import subprocess as sp
 warnings.filterwarnings("ignore")
 plt.style.use('bmh')
 
@@ -135,6 +137,7 @@ def clean_survey(svy_num):
     plt.show()
 
 def write_data_all_datafile(clen,rlen,val=[]):
+    global datafilename
     f_err1 = []
     if val:
         for i in range(len(f_t)):
@@ -154,3 +157,87 @@ def write_data_all_datafile(clen,rlen,val=[]):
     for i in range(len(f_t)):
         dfn.write("%14.12f  %14.12f  %14.12f\n" % (f_t[i], f_volt[i], f_err1[i]))
     dfn.close()
+
+def write_inv_occ1(invtype,numlay,tcklay,deplay,reslay,maxite):
+    if invtype == "occ1":
+        invfn = open("emufood_occ_r1", 'w')
+        invfn.write("!rm -r tem_occr1.epl\n")
+    elif invtype == "occ2":
+        invfn = open("emufood_occ_r2", 'w')
+        invfn.write("!rm -r tem_occr2.epl\n")
+    invfn.write("\n")
+    invfn.write("modl\n")
+    invfn.write("%d\n" % numlay)
+    invfn.write("yes\n")
+    invfn.write("%d\n" % tcklay)
+    invfn.write("%d\n" % deplay)
+    invfn.write("yes\n")
+    invfn.write("%d\n" % reslay)
+    invfn.write("yes\n")
+    invfn.write("m0_occam\n")
+    invfn.write("\n")
+    invfn.write("load\n")
+    invfn.write("TLHZ\n")
+    invfn.write("no\n")
+    invfn.write("no\n")
+    invfn.write("no\n")
+    invfn.write("yes\n")
+    invfn.write("%s\n" % datafilename)
+    invfn.write("setu\n")
+    invfn.write("invm\n")
+    invfn.write("2\n")
+    invfn.write("invp\n")
+    invfn.write("0.8\n")
+    invfn.write("10\n")
+    invfn.write("%d\n" % maxite)
+    if invtype == "occ1":
+        invfn.write("1\n")
+    elif invtype == "occ2":
+        invfn.write("2\n")
+    invfn.write("2\n")
+    invfn.write("0.901\n")
+    invfn.write("no\n")
+    invfn.write("1\n")
+    invfn.write("erro\n")
+    invfn.write("yes\n")
+    invfn.write("no\n")
+    invfn.write("1.6\n")
+    invfn.write("5\n")
+    invfn.write("yes\n")
+    invfn.write("no\n")
+    invfn.write("exit\n")
+    invfn.write("\n")
+    invfn.write("fix\n")
+    invfn.write("c\n")
+    invfn.write("e\n")
+    invfn.write("auto\n")
+    invfn.write("savd\n")
+    invfn.write("%s.dat\n" % ofn)
+    invfn.write("xypl\n")
+    invfn.write("no\n")
+    if invtype == "occ1":
+        invfn.write("tem_occr1\n")
+    elif invtype == "occ2":
+        invfn.write("tem_occr2\n")
+    invfn.write("\n")
+    invfn.write("!mv synth* tem_occr1.epl\n")
+    invfn.write("!mv *.olo tem_occr1.epl\n")
+    invfn.write("!mv *.mod tem_occr1.epl\n")
+    invfn.write("!mv *.ps tem_occr1.epl\n")
+    invfn.write("!mv *.dat tem_occr1.epl\n")
+    invfn.write("!mv *.mod tem_occr1.epl\n")
+    invfn.write("\n")
+    invfn.write("exit\n")
+    invfn.close()
+
+def run_inversion(invtype):
+    if invtype == "occ1":
+        inv_infile = "emufood_occ_r1"
+    elif invtype == "occ2":
+        inv_infile = "emufood_occ_r2"
+    fn = open("shinv",'w')
+    fn.write("inversion/emuplus < %s" %inv_infile)
+    fn.close()
+    st = os.stat('shinv')
+    os.chmod('shinv', st.st_mode | stat.S_IEXEC)
+    sp.call('shinv', shell=True)
