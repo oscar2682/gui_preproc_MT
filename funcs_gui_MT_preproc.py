@@ -158,7 +158,7 @@ def write_data_all_datafile(clen,rlen,val=[]):
         dfn.write("%14.12f  %14.12f  %14.12f\n" % (f_t[i], f_volt[i], f_err1[i]))
     dfn.close()
 
-def write_inv_occ1(invtype,numlay,tcklay,deplay,reslay,maxite):
+def write_inv_occ(invtype,numlay,tcklay,deplay,reslay,maxite):
     if invtype == "occ1":
         invfn = open("emufood_occ_r1", 'w')
         invfn.write("!rm -r tem_occr1.epl\n")
@@ -230,10 +230,84 @@ def write_inv_occ1(invtype,numlay,tcklay,deplay,reslay,maxite):
     invfn.write("exit\n")
     invfn.close()
 
+def write_inv_mrq(maxite):
+    invfn = open("emufood_marq", 'w')
+    invfn.write("!rm -r tem_marq_3lay.epl\n")
+    invfn.write("\n")
+    invfn.write("getm\n")
+    invfn.write("m0_3lay.model\n")
+    invfn.write("\n")
+    invfn.write("load\n")
+    invfn.write("TLHZ\n")
+    invfn.write("no\n")
+    invfn.write("no\n")
+    invfn.write("no\n")
+    invfn.write("yes\n")
+    invfn.write("%s\n" % datafilename)
+    invfn.write("setu\n")
+    invfn.write("invm\n")
+    invfn.write("1\n")
+    invfn.write("invp\n")
+    invfn.write("0.9\n")
+    invfn.write("1\n")
+    invfn.write("%d\n" % maxite)
+    invfn.write("0.1\n")
+    invfn.write("1\n")
+    invfn.write("erro\n")
+    invfn.write("yes\n")
+    invfn.write("no\n")
+    invfn.write("1.6\n")
+    invfn.write("5\n")
+    invfn.write("yes\n")
+    invfn.write("no\n")
+    invfn.write("exit\n")
+    invfn.write("\n")
+    invfn.write("fix\n")
+    invfn.write("c\n")
+    invfn.write("e\n")
+    invfn.write("auto\n")
+    invfn.write("\n")
+    invfn.write("savd\n")
+    invfn.write("%s.dat\n" % ofn)
+    invfn.write("xypl\n")
+    invfn.write("no\n")
+    invfn.write("tem_marq_3lay\n")
+    invfn.write("\n")
+    invfn.write("!mv synth* tem_marq_3lay.epl\n")
+    invfn.write("!mv *.sta tem_marq_3lay.epl\n")
+    invfn.write("!mv *.log tem_marq_3lay.epl\n")
+    invfn.write("!mx *.mod tem_marq_3lay.epl\n")
+    invfn.write("!mv *.ps tem_marq_3lay.epl\n")
+    invfn.write("!mv *.scr tem_marq_3lay.epl\n")
+    invfn.write("!mv *.dat tem_marq_3lay.epl\n")
+    invfn.write("exit\n")
+    invfn.close()
+
+def write_model_file(model):
+    modfn = open("m0_3lay.model", 'w')
+    modfn.write(" #Layer No. | Resistivity | Thickness | Anisotropy\n")
+    for i in range(len(model)):
+        if (i+1) == len(model):
+            modfn.write("         %d       %7.2f     0.0      1.00\n" % \
+                (i+1, float(model[i]["rho"].text())))
+        else:
+            modfn.write("         %d       %7.2f    %4.2f         1.00\n" % \
+                (i+1, float(model[i]["rho"].text()), float(model[i]["depth"].text())))
+    modfn.write("# Calibration factor:  1.0000\n")
+    modfn.write("# Tx-Distortion Txx:   1.0000\n")
+    modfn.write("# Tx-Distortion Txy:   0.0000\n")
+    modfn.write("# Error:              *******")
+    modfn.close()
+
+
 def run_inversion(invtype):
     if invtype == "occ1":
         inv_infile = "emufood_occ_r1"
     elif invtype == "occ2":
+        inv_infile = "emufood_occ_r2"
+    elif invtype == "mrq":
+        inv_infile = "emufood_marq"
+    elif invtype == "eq":
         inv_infile = "emufood_occ_r2"
     fn = open("shinv",'w')
     fn.write("inversion/emuplus < %s" %inv_infile)

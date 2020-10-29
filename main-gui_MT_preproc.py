@@ -14,9 +14,11 @@ from PyQt5.QtWidgets import QGroupBox,QFileDialog
 from PyQt5.QtWidgets import QLabel,QGridLayout
 from PyQt5.QtWidgets import QLineEdit,QCheckBox
 from PyQt5.QtWidgets import QWidget,QButtonGroup
+from PyQt5.QtWidgets import QSpinBox
 from funcs_gui_MT_preproc import plot_file, get_info_labels
 from funcs_gui_MT_preproc import clean_survey, write_data_all_datafile
-from funcs_gui_MT_preproc import write_inv_occ1, run_inversion
+from funcs_gui_MT_preproc import write_inv_occ, run_inversion
+from funcs_gui_MT_preproc import write_model_file, write_inv_mrq
 import matplotlib.pyplot as plt
 
 class MainWindow(QDialog):
@@ -290,6 +292,7 @@ class MainWindow(QDialog):
             self.prm01 = QLineEdit(self)
             self.prm01_l = QLabel("Number of layers")
             self.prm01_l.setStyleSheet('color: green')
+            self.prm01.setFixedWidth(80)
             self.prm02 = QLineEdit(self)
             self.prm02_l = QLabel("Thickness of first layer [m]")
             self.prm02_l.setStyleSheet('color: green')
@@ -319,6 +322,7 @@ class MainWindow(QDialog):
             self.prm01 = QLineEdit(self)
             self.prm01_l = QLabel("Number of layers")
             self.prm01_l.setStyleSheet('color: green')
+            self.prm01.setFixedWidth(80)
             self.prm02 = QLineEdit(self)
             self.prm02_l = QLabel("Thickness of first layer [m]")
             self.prm02_l.setStyleSheet('color: green')
@@ -346,30 +350,16 @@ class MainWindow(QDialog):
             self.box_01 = QGroupBox("-- Marquardt --", self)
             self.box_layout01 = QGridLayout()
             self.prm01 = QLineEdit(self)
-            self.prm01_l = QLabel("Number of layers")
+            self.prm01_l = QLabel("Maximum number os iterations")
             self.prm01_l.setStyleSheet('color: green')
+            self.prm01.setFixedWidth(80)
             self.prm02 = QLineEdit(self)
-            self.prm02_l = QLabel("Thickness of first layer [m]")
+            self.prm02_l = QLabel("Number of layers")
             self.prm02_l.setStyleSheet('color: green')
-            self.prm03 = QLineEdit(self)
-            self.prm03_l = QLabel("Depth of last layer [m]")
-            self.prm03_l.setStyleSheet('color: green')
-            self.prm04 = QLineEdit(self)
-            self.prm04_l = QLabel("Resistivity of layers [ohm-m]")
-            self.prm04_l.setStyleSheet('color: green')
-            self.prm05 = QLineEdit(self)
-            self.prm05_l = QLabel("Maximum number os iterations")
-            self.prm05_l.setStyleSheet('color: green')
             self.box_layout01.addWidget(self.prm01,1,1)
             self.box_layout01.addWidget(self.prm01_l,1,2)
             self.box_layout01.addWidget(self.prm02,2,1)
             self.box_layout01.addWidget(self.prm02_l,2,2)
-            self.box_layout01.addWidget(self.prm03,3,1)
-            self.box_layout01.addWidget(self.prm03_l,3,2)
-            self.box_layout01.addWidget(self.prm04,4,1)
-            self.box_layout01.addWidget(self.prm04_l,4,2)
-            self.box_layout01.addWidget(self.prm05,5,1)
-            self.box_layout01.addWidget(self.prm05_l,5,2)
             self.box_01.setLayout(self.box_layout01)
         elif invtype == "eq":
             self.box_01 = QGroupBox("-- Equivalents --", self)
@@ -387,7 +377,7 @@ class MainWindow(QDialog):
             self.prm04_l = QLabel("Resistivity of layers [ohm-m]")
             self.prm04_l.setStyleSheet('color: green')
             self.prm05 = QLineEdit(self)
-            self.prm05_l = QLabel("Maximum number os iterations")
+            self.prm05_l = QLabel("Maximum number of iterations")
             self.prm05_l.setStyleSheet('color: green')
             self.box_layout01.addWidget(self.prm01,1,1)
             self.box_layout01.addWidget(self.prm01_l,1,2)
@@ -401,22 +391,81 @@ class MainWindow(QDialog):
             self.box_layout01.addWidget(self.prm05_l,5,2)
             self.box_01.setLayout(self.box_layout01)
     
-        self.bot_save_param = QPushButton("Save parameters",self)
-        self.bot_save_param2 = QPushButton('Save parameters && Exit',self)
-        self.bot_save_param2.clicked.connect(cfg_edit_window.close)
-        self.bot_save_param.clicked.connect(self.write_inv_file)
-        layout_cfg_win.addWidget(self.box_01,1,1,1,2)
-        layout_cfg_win.addWidget(self.bot_save_param,2,1)
-        layout_cfg_win.addWidget(self.bot_save_param2,2,2)
-        cfg_edit_window.exec_()
+        if invtype == "occ1" or invtype == "occ2":
+            self.bot_save_param = QPushButton("Save parameters",self)
+            self.bot_save_param.clicked.connect(self.write_inv_file)
+            self.bot_save_param2 = QPushButton('Exit',self)
+            self.bot_save_param2.clicked.connect(cfg_edit_window.close)
+            layout_cfg_win.addWidget(self.box_01,1,1,1,2)
+            layout_cfg_win.addWidget(self.bot_save_param,2,1)
+            layout_cfg_win.addWidget(self.bot_save_param2,2,2)
+            cfg_edit_window.exec_()
+        elif invtype == "mrq":
+            self.bot_save_param = QPushButton("Save parameters",self)
+            self.bot_create_model = QPushButton('Create model',self)
+            self.bot_save_param2 = QPushButton('Exit',self)
+            self.bot_save_param.clicked.connect(self.write_inv_file)
+            self.bot_save_param2.clicked.connect(cfg_edit_window.close)
+            self.bot_create_model.clicked.connect(self.create_model)
+            layout_cfg_win.addWidget(self.box_01,1,1,1,2)
+            layout_cfg_win.addWidget(self.bot_create_model,2,1)
+            layout_cfg_win.addWidget(self.bot_save_param,2,2)
+            layout_cfg_win.addWidget(self.bot_save_param2,2,3)
+            cfg_edit_window.exec_()
+
+    def create_model(self):
+        global model
+        self.set_item_count = 0
+        maxite = int(self.prm01.text())
+        numlay = int(self.prm02.text())
+        cfg_model_window = QDialog(self)
+        cfg_model_window.setWindowTitle(self.tr("Inversion parameters"))
+        cfg_model_window.resize(200,30)
+        layout_cfg_mod = QGridLayout(cfg_model_window)
+        bot_exit_mod = QPushButton("Exit",self)
+        bot_exit_mod.setFixedWidth(80)
+        bot_save_mod = QPushButton("Save Model",self)
+        bot_save_mod.setFixedWidth(80)
+        lay_lab0 = QLabel(self)
+        res_lab0 = QLabel(self)
+        dep_lab0 = QLabel(self)
+        lay_lab0.setText("Layer")
+        res_lab0.setText("Resistivity [ohm-m]")
+        dep_lab0.setText("Thickness [m]")
+        model = []
+        for i in range(numlay):
+            rho = QLineEdit()
+            depth = QLineEdit()
+            lay_lab = QLabel(self)
+            lay_lab.setText("Layer %s" %str(i+1))
+            model.append({"layer":i, "rho":rho, "depth":depth})
+            layout_cfg_mod.addWidget(lay_lab,i+1,1)
+            layout_cfg_mod.addWidget(rho,i+1,2)
+            layout_cfg_mod.addWidget(depth,i+1,3)
+        bot_exit_mod.clicked.connect(cfg_model_window.close)
+        bot_save_mod.clicked.connect(self.write_model)
+        layout_cfg_mod.addWidget(lay_lab0,0,1)
+        layout_cfg_mod.addWidget(res_lab0,0,2)
+        layout_cfg_mod.addWidget(dep_lab0,0,3)
+        layout_cfg_mod.addWidget(bot_exit_mod,8,3)
+        layout_cfg_mod.addWidget(bot_save_mod,8,2)
+        cfg_model_window.exec()
+
+    def write_model(self):
+        write_model_file(model)
+
 
     def write_inv_file(self):
-        numlay = float(self.prm01.text())
-        tcklay = float(self.prm02.text())
-        deplay = float(self.prm03.text())
-        reslay = float(self.prm04.text())
-        maxite = float(self.prm05.text())
-        write_inv_occ1(invtype,numlay,tcklay,deplay,reslay,maxite)
+        if invtype == "occ1" or invtype == "occ":
+            numlay = float(self.prm01.text())
+            tcklay = float(self.prm02.text())
+            deplay = float(self.prm03.text())
+            reslay = float(self.prm04.text())
+            maxite = float(self.prm05.text())
+            write_inv_occ(invtype,numlay,tcklay,deplay,reslay,maxite)
+        elif invtype == "mrq":
+            maxite = float(self.prm01.text())
+            write_inv_mrq(maxite)
     
     def pre_run_inversion(self):
         run_inversion(invtype)
